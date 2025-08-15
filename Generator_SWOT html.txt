@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SWOT, Projekty a Akční Plán</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-[#004d40] mb-2">Generátor SWOT analýzy, projektů a akčního plánu</h1>
+            <p class="text-lg text-[#00796b]">Komplexní nástroj pro diagnostiku a plánování změn ve firmě.</p>
+        </header>
+
+        <main>
+            <section id="swot-section" class="mb-16">
+                 <div class="bg-white rounded-lg shadow-md p-6 md:p-8">
+                    <h2 class="text-3xl font-bold text-center text-[#004d40] mb-8">1. Vytvořte si analýzu ✨</h2>
+                    <p class="max-w-3xl mx-auto text-lg text-center mb-6">Zadejte klíčové informace o vaší firmě nebo problému, který řešíte, a nechte AI vygenerovat návrh SWOT analýzy s číslovanými ukazateli.</p>
+                    <div class="flex flex-col items-center">
+                        <textarea id="swotInput" class="w-full p-4 border border-gray-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-[#00796b]" rows="6" placeholder="Například: 'Jsme malá výrobní firma s dlouhou historií, ale konkurence na trhu roste a naši zaměstnanci jsou unavení a pasivní.'"></textarea>
+                        <button id="generateSwotBtn" class="bg-[#f57c00] text-white font-bold py-3 px-6 rounded-lg hover:bg-[#d32f2f] transition-colors flex items-center justify-center">
+                            Generovat SWOT analýzu ✨
+                        </button>
+                    </div>
+                    <div id="swotResult" class="mt-8 hidden">
+                        <h3 class="text-2xl font-semibold text-[#00796b] mb-4">Výsledek SWOT analýzy</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-[#b2dfdb] p-4 rounded-lg">
+                                <h4 class="font-bold text-lg text-[#004d40]">Silné stránky</h4>
+                                <ul id="swotStrengths" class="list-none space-y-2 mt-2"></ul>
+                            </div>
+                            <div class="bg-[#ffcdd2] p-4 rounded-lg">
+                                <h4 class="font-bold text-lg text-[#d32f2f]">Slabé stránky</h4>
+                                <ul id="swotWeaknesses" class="list-none space-y-2 mt-2"></ul>
+                            </div>
+                            <div class="bg-[#e0f2f1] p-4 rounded-lg">
+                                <h4 class="font-bold text-lg text-[#00796b]">Příležitosti</h4>
+                                <ul id="swotOpportunities" class="list-none space-y-2 mt-2"></ul>
+                            </div>
+                            <div class="bg-[#ffeb3b] p-4 rounded-lg">
+                                <h4 class="font-bold text-lg text-[#f57c00]">Hrozby</h4>
+                                <ul id="swotThreats" class="list-none space-y-2 mt-2"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="projects-section" class="mb-16 hidden">
+                 <div class="bg-white rounded-lg shadow-md p-6 md:p-8">
+                    <h2 class="text-3xl font-bold text-center text-[#004d40] mb-8">2. Navrhované projekty pro změnu</h2>
+                    <p class="max-w-3xl mx-auto text-lg text-center mb-6">Na základě vaší SWOT analýzy byly vygenerovány konkrétní projekty, které využívají vaše silné stránky a příležitosti k řešení slabých stránek a hrozeb.</p>
+                    <div class="flex flex-col items-center">
+                        <button id="generateProjectsBtn" class="bg-[#00796b] text-white font-bold py-3 px-6 rounded-lg hover:bg-[#004d40] transition-colors flex items-center justify-center">
+                            Generovat projekty pro změnu ✨
+                        </button>
+                    </div>
+                    <div id="projectsResult" class="mt-8 hidden">
+                        <div id="projectsList" class="space-y-6 mb-8"></div>
+                    </div>
+                    <button id="generateActionPlanBtn" class="bg-[#f57c00] text-white font-bold py-3 px-6 rounded-lg hover:bg-[#d32f2f] transition-colors flex items-center justify-center hidden">
+                        Generovat akční plán 🚀
+                    </button>
+                </div>
+            </section>
+            
+            <section id="action-plan-section" class="mb-16 hidden">
+                 <div class="bg-white rounded-lg shadow-md p-6 md:p-8">
+                    <h2 class="text-3xl font-bold text-center text-[#004d40] mb-8">3. Akční plán pro zavedení projektů</h2>
+                    <p class="max-w-3xl mx-auto text-lg text-center mb-6">Následující plán rozděluje projekty na konkrétní kroky, abyste mohli okamžitě začít s implementací změn.</p>
+                    <div id="actionPlanResult" class="mt-8">
+                        <div id="actionPlanList" class="space-y-8"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const swotInput = document.getElementById('swotInput');
+        const generateSwotBtn = document.getElementById('generateSwotBtn');
+        const swotResultDiv = document.getElementById('swotResult');
+        const swotStrengthsList = document.getElementById('swotStrengths');
+        const swotWeaknessesList = document.getElementById('swotWeaknesses');
+        const swotOpportunitiesList = document.getElementById('swotOpportunities');
+        const swotThreatsList = document.getElementById('swotThreats');
+        const projectsSection = document.getElementById('projects-section');
+        const generateProjectsBtn = document.getElementById('generateProjectsBtn');
+        const projectsResultDiv = document.getElementById('projectsResult');
+        const projectsListDiv = document.getElementById('projectsList');
+        const generateActionPlanBtn = document.getElementById('generateActionPlanBtn');
+        const actionPlanSection = document.getElementById('action-plan-section');
+        const actionPlanListDiv = document.getElementById('actionPlanList');
+        
+        let generatedSwot = {};
+        let generatedProjects = [];
+
+        generateSwotBtn.addEventListener('click', async () => {
+            const problemDescription = swotInput.value.trim();
+            if (!problemDescription) return;
+
+            generateSwotBtn.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Generuji...';
+            generateSwotBtn.disabled = true;
+            swotResultDiv.classList.add('hidden');
+            projectsSection.classList.add('hidden');
+            actionPlanSection.classList.add('hidden');
+            
+            try {
+                let chatHistory = [];
+                const prompt = `Jste zkušený obchodní konzultant. Na základě následujícího popisu podniku/problému vytvořte komplexní SWOT analýzu (Silné stránky, Slabé stránky, Příležitosti, Hrozby). Každá položka musí být stručná a psaná v českém jazyce. Odpovězte pouze ve formátu JSON. Zde je popis: "${problemDescription}"`;
+                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                const payload = {
+                    contents: chatHistory,
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "OBJECT",
+                            properties: {
+                                "strengths": { "type": "ARRAY", "items": { "type": "STRING" } },
+                                "weaknesses": { "type": "ARRAY", "items": { "type": "STRING" } },
+                                "opportunities": { "type": "ARRAY", "items": { "type": "STRING" } },
+                                "threats": { "type": "ARRAY", "items": { "type": "STRING" } }
+                            }
+                        }
+                    }
+                };
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                
+                const json = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (json) {
+                    generatedSwot = JSON.parse(json);
+                    
+                    swotStrengthsList.innerHTML = generatedSwot.strengths.map((item, index) => `<li>S${index + 1}: ${item}</li>`).join('');
+                    swotWeaknessesList.innerHTML = generatedSwot.weaknesses.map((item, index) => `<li>W${index + 1}: ${item}</li>`).join('');
+                    swotOpportunitiesList.innerHTML = generatedSwot.opportunities.map((item, index) => `<li>O${index + 1}: ${item}</li>`).join('');
+                    swotThreatsList.innerHTML = generatedSwot.threats.map((item, index) => `<li>T${index + 1}: ${item}</li>`).join('');
+
+                    swotResultDiv.classList.remove('hidden');
+                    projectsSection.classList.remove('hidden');
+                } else {
+                    console.error("API response was not in the expected format.", result);
+                }
+            } catch (error) {
+                console.error("Failed to fetch SWOT analysis:", error);
+            } finally {
+                generateSwotBtn.innerHTML = 'Generovat SWOT analýzu ✨';
+                generateSwotBtn.disabled = false;
+            }
+        });
+        
+        generateProjectsBtn.addEventListener('click', async () => {
+            generateProjectsBtn.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Generuji...';
+            generateProjectsBtn.disabled = true;
+            projectsResultDiv.classList.add('hidden');
+            generateActionPlanBtn.classList.add('hidden');
+            actionPlanSection.classList.add('hidden');
+
+            try {
+                const swotPrompt = JSON.stringify(generatedSwot, null, 2);
+                let chatHistory = [];
+                const prompt = `Jste zkušený konzultant pro řízení změn. Na základě následující SWOT analýzy vytvořte seznam 3-5 konkrétních projektů pro změnu. Každý projekt by měl strategicky využívat silné stránky a příležitosti k řešení slabých stránek a hrozeb. Odpovězte pouze ve formátu JSON. Zde je SWOT analýza: ${swotPrompt}`;
+                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                const payload = {
+                    contents: chatHistory,
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "ARRAY",
+                            items: {
+                                type: "OBJECT",
+                                properties: {
+                                    "projectName": { "type": "STRING" },
+                                    "projectDescription": { "type": "STRING" }
+                                }
+                            }
+                        }
+                    }
+                };
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                
+                const json = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (json) {
+                    generatedProjects = JSON.parse(json);
+                    
+                    projectsListDiv.innerHTML = generatedProjects.map(project => `
+                        <div class="bg-gray-50 p-6 rounded-lg border-l-4 border-[#00796b] shadow-sm">
+                            <h4 class="font-bold text-lg text-[#004d40] mb-2">${project.projectName}</h4>
+                            <p class="text-gray-700">${project.projectDescription}</p>
+                        </div>
+                    `).join('');
+
+                    projectsResultDiv.classList.remove('hidden');
+                    generateActionPlanBtn.classList.remove('hidden');
+                } else {
+                    console.error("API response was not in the expected format.", result);
+                }
+            } catch (error) {
+                console.error("Failed to fetch projects:", error);
+            } finally {
+                generateProjectsBtn.innerHTML = 'Generovat projekty pro změnu ✨';
+                generateProjectsBtn.disabled = false;
+            }
+        });
+
+        generateActionPlanBtn.addEventListener('click', async () => {
+            generateActionPlanBtn.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Generuji plán...';
+            generateActionPlanBtn.disabled = true;
+            actionPlanSection.classList.add('hidden');
+            
+            try {
+                const projectsPrompt = JSON.stringify(generatedProjects, null, 2);
+                let chatHistory = [];
+                const prompt = `Jste zkušený projektový manažer. Pro každý z následujících projektů vytvořte detailní akční plán v českém jazyce. Plán by měl obsahovat: projectName, goals (3-4 stručné cíle), keySteps (5-7 konkrétních kroků s odpovědností - použijte placeholder 'vedoucí týmu'), a timeline (hrubý odhad v měsících nebo kvartálech). Odpovězte pouze ve formátu JSON. Zde jsou projekty: ${projectsPrompt}`;
+                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                const payload = {
+                    contents: chatHistory,
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "ARRAY",
+                            items: {
+                                type: "OBJECT",
+                                properties: {
+                                    "projectName": { "type": "STRING" },
+                                    "goals": { "type": "ARRAY", "items": { "type": "STRING" } },
+                                    "keySteps": { "type": "ARRAY", "items": { "type": "STRING" } },
+                                    "timeline": { "type": "STRING" }
+                                }
+                            }
+                        }
+                    }
+                };
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                
+                const json = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (json) {
+                    const actionPlans = JSON.parse(json);
+                    
+                    actionPlanListDiv.innerHTML = actionPlans.map(plan => `
+                        <div class="bg-gray-50 p-6 rounded-lg border-l-4 border-[#f57c00] shadow-sm">
+                            <h4 class="font-bold text-xl text-[#004d40] mb-2">${plan.projectName}</h4>
+                            <div class="mb-4">
+                                <h5 class="font-semibold text-[#00796b]">Cíle:</h5>
+                                <ul class="list-disc list-inside space-y-1 text-gray-700">
+                                    ${plan.goals.map(goal => `<li>${goal}</li>`).join('')}
+                                </ul>
+                            </div>
+                            <div class="mb-4">
+                                <h5 class="font-semibold text-[#00796b]">Klíčové kroky:</h5>
+                                <ul class="list-decimal list-inside space-y-1 text-gray-700">
+                                    ${plan.keySteps.map(step => `<li>${step}</li>`).join('')}
+                                </ul>
+                            </div>
+                            <div>
+                                <h5 class="font-semibold text-[#00796b]">Časový plán:</h5>
+                                <p class="text-gray-700">${plan.timeline}</p>
+                            </div>
+                        </div>
+                    `).join('');
+
+                    actionPlanSection.classList.remove('hidden');
+                } else {
+                    console.error("API response was not in the expected format.", result);
+                }
+            } catch (error) {
+                console.error("Failed to fetch action plan:", error);
+            } finally {
+                generateActionPlanBtn.innerHTML = 'Generovat akční plán 🚀';
+                generateActionPlanBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
